@@ -21,7 +21,10 @@ inThisBuild(
     ),
     scalaVersion := scala212,
     crossScalaVersions := List(scala212, scala211),
-    resolvers += Resolver.sonatypeRepo("releases"),
+    resolvers ++= Seq(
+      Resolver.sonatypeRepo("releases"),
+      Resolver.bintrayIvyRepo("sbt", "sbt-plugin-releases")
+    ),
     libraryDependencies ++= List(
       scalatest.value % Test,
       scalacheck % Test,
