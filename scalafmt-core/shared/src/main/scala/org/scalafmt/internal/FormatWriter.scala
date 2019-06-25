@@ -6,6 +6,7 @@ import scala.meta.Decl
 import scala.meta.Defn
 import scala.meta.Mod
 import scala.meta.Import
+import scala.meta.Importee
 import scala.meta.Importer
 import scala.meta.Pkg
 import scala.meta.Term
@@ -186,7 +187,9 @@ class FormatWriter(formatOps: FormatOps) {
             " "
           case nl: NewlineT =>
             val newline =
-              if (nl.isDouble || isMultilineTopLevelStatement(locations, i))
+              if (owners(tok.left).parent.exists(_.is[Importee]) && !owners(tok.right).is[Import])
+                "\n\n\n"
+              else if (nl.isDouble || isMultilineTopLevelStatement(locations, i))
                 "\n\n"
               else "\n"
             val indentation =
