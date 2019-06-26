@@ -977,10 +977,16 @@ class Router(formatOps: FormatOps) {
         val optimalToken = chainOptimalToken(chain)
         val breakOnEveryDot = Policy(
           {
-            case Decision(t @ FormatToken(_, dot2 @ Dot(), _), s)
+            case Decision(t @ FormatToken(l, dot2 @ Dot(), _), s)
                 if chain.contains(owners(dot2)) =>
+              def isJoin = owners(l) match {
+                case Term.Apply(Term.Select(_, Term.Name(value)), _) =>
+                  // don't break slick `.join().on()`
+                  value == "join" || value == "joinLeft"
+                case _ => false
+              }
               val mod =
-                if (style.optIn.breaksInsideChains && t.newlinesBetween == 0)
+                if ((style.optIn.breaksInsideChains && t.newlinesBetween == 0) || isJoin)
                   NoSplit
                 else Newline
               Decision(t, Seq(Split(mod, 1)))
