@@ -136,7 +136,12 @@ final case class ScalafmtDynamic(
       version <- readVersion(configPath).toRight(
         ScalafmtDynamicError.ConfigMissingVersion(configPath)
       )
-      fmtReflect <- resolveFormatter(configPath, version)
+      // instead of downloading the formatter, use the one that's already available locally
+      fmtReflect = ScalafmtReflect(
+        new URLClassLoader(Array(), this.getClass.getClassLoader),
+        version,
+        respectVersion
+      )
       config <- parseConfig(configPath, fmtReflect)
     } yield config
   }
