@@ -68,6 +68,8 @@ class FormatWriter(formatOps: FormatOps) {
               if (state.splits.last.modification.isNewline) state.indentation
               else lastState.column + whitespace.length
             sb.append(formatMarginizedString(literal, column + 2))
+          case c: Comment if org.scalafmt.util.TokenOps.isSingleLineComment(c) && formatToken.newlinesBetween == 0 =>
+            sb.append(" ")  // two spaces before trailing comments
           case _ => // Ignore
         }
         lastState = state
