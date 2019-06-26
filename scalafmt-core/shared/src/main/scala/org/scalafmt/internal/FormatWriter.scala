@@ -186,8 +186,15 @@ class FormatWriter(formatOps: FormatOps) {
                 state.indentation >= previous.state.column =>
             " "
           case nl: NewlineT =>
+            val leftOwner = owners(tok.left)
             val newline =
-              if (owners(tok.left).parent.exists(_.is[Importee]) && !owners(tok.right).is[Import])
+              if ((
+                leftOwner.is[Importer] ||  // import a.{b, c}
+                leftOwner.is[Importee] ||  // import a._
+                leftOwner.parent.exists(_.is[Importee]) ||  // import a.b
+                leftOwner.parent.exists(_.is[Pkg]) ||  // package a
+                (leftOwner.is[Term] && leftOwner.parent.flatMap(_.parent).exists(_.is[Pkg]))  // package a.b.c
+              ) && !owners(tok.right).is[Import])
                 "\n\n\n"
               else if (nl.isDouble || isMultilineTopLevelStatement(locations, i))
                 "\n\n"
