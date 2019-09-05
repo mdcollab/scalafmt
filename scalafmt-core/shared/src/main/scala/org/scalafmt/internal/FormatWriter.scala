@@ -189,6 +189,7 @@ class FormatWriter(formatOps: FormatOps) {
             " "
           case nl: NewlineT =>
             val leftOwner = owners(tok.left)
+            val rightOwner = owners(tok.right)
             val newline =
               if ((
                 leftOwner.is[Importer] ||  // import a.{b, c}
@@ -196,7 +197,11 @@ class FormatWriter(formatOps: FormatOps) {
                 leftOwner.parent.exists(_.is[Importee]) ||  // import a.b
                 leftOwner.parent.exists(_.is[Pkg]) ||  // package a
                 (leftOwner.is[Term] && leftOwner.parent.flatMap(_.parent).exists(_.is[Pkg]))  // package a.b.c
-              ) && !owners(tok.right).is[Import])
+              ) && !(
+                rightOwner.is[Import] ||
+                rightOwner.is[Importer] ||
+                rightOwner.parent.exists(_.is[Importee])
+              ))
                 "\n\n\n"
               else if (nl.isDouble || isMultilineTopLevelStatement(locations, i))
                 "\n\n"
